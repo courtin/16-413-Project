@@ -160,22 +160,22 @@ def to_cnf(s, SHOW_STEPS=False):
     """
     if isinstance(s, str): s = expr(s)
     if SHOW_STEPS:
-        print "Initial Expression:\n%s"%s
+        print("Initial Expression:\n%s"%s)
     si = eliminate_implications(s) # Steps 1, 2 from p. 215
     if SHOW_STEPS:
         if not si.__eq__(s):
-            print "Eliminate Implications:"
-            print si
+            print("Eliminate Implications:")
+            print(si)
     sn = move_not_inwards(si) # Step 3
     if SHOW_STEPS:
         if not sn.__eq__(si):
-            print "De Morgan's Theorem:"
-            print sn
+            print("De Morgan's Theorem:")
+            print(sn)
     sd =  distribute_and_over_or(sn) # Step 4
     if SHOW_STEPS:
         if not sd.__eq__(sn):
-            print "Distribution"
-            print sd
+            print("Distribution")
+            print(sd)
     return sd
 def eliminate_implications(s):
     """Change >>, <<, and <=> into &, |, and ~. That is, return an Expr

@@ -16,7 +16,7 @@ except NameError:
         def __int__(self): return self.val
         def __repr__(self): return ('False', 'True')[self.val]
 
-    True, False = bool(1), bool(0)
+#     True, False = bool(1), bool(0)
 
 try: sum ## Introduced in 2.3
 except NameError:
@@ -522,13 +522,13 @@ def turn_right(orientation):
 def turn_left(orientation):
     return orientations[(orientations.index(orientation)+1) % len(orientations)]
 
-def distance((ax, ay), (bx, by)):
-    "The distance between two (x, y) points."
-    return math.hypot((ax - bx), (ay - by))
+# def distance((ax, ay), (bx, by)):
+#     "The distance between two (x, y) points."
+#     return math.hypot((ax - bx), (ay - by))
 
-def distance2((ax, ay), (bx, by)):
-    "The square of the distance between two (x, y) points."
-    return (ax - bx)**2 + (ay - by)**2
+# def distance2((ax, ay), (bx, by)):
+#     "The square of the distance between two (x, y) points."
+#     return (ax - bx)**2 + (ay - by)**2
 
 def clip(vector, lowest, highest):
     """Return vector, except if any element is less than the corresponding
@@ -622,8 +622,8 @@ def print_table(table, header=None, sep=' ', numfmt='%g'):
     sizes = map(maxlen, zip(*[map(str, row) for row in table]))
     for row in table:
         for (j, size, x) in zip(justs, sizes, row):
-            print getattr(str(x), j)(size), sep,
-        print
+            print(getattr(str(x), j)(size), sep,)
+        print()
 
 def AIMAFile(components, mode='r'):
     "Open a file based at the AIMA root directory."
