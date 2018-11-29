@@ -204,7 +204,16 @@ except NameError:
             __iand__ = intersection_update
             __isub__ = difference_update
             __ixor__ = symmetric_difference_update
-
+#Custom for 16.413
+def trim_or(clauses):
+    #Replace clauses of the form "|A" or "|~A" with the more reasonable "A" or "~A"
+    clauses_to_trim = []
+    for c in clauses:
+        if len(c.args)==1 and (c.op == "|" or c.op == "|~"):
+            clauses_to_trim.append(c)
+    if len(clauses_to_trim) > 0:
+        clauses = [c.args[0] if (c in clauses_to_trim) else c for c in clauses]
+    return clauses
 
 
 
