@@ -1,5 +1,5 @@
 from logic import *
-
+from project_library import *
 
 class Literals:
     @property
@@ -77,6 +77,9 @@ class OR:
     def __copy__(self):
         return OR(*[literal.copy() for literal in self.literals])
 
+    def __iter__(self):
+        return self.literals.__iter__()
+
 
 class AND:
     def __init__(self, *clauses: [OR]):
@@ -90,13 +93,63 @@ class AND:
     def __copy__(self):
         return AND(*[clause.copy() for clause in self.clauses])
 
+    def __iter__(self):
+        return self.clauses.__iter__()
+
     # modifies this instance, calls one round of unit propagation
     def unit_propagate(self):
-        # get together the true variables, and pass those to Chris' code
+        for or_clause in self.clauses:
+            if len([literal for literal in or_clause.literals if literal.assignment is True]) > 0:
+                continue
+            unassigned = [literal for literal in or_clause.literals if literal.assignment is None]
+            if len(unassigned) >= 2 or len(unassigned) == 0:
+                continue
+            unassigned[0].assign(True)
+            return
+
+    def unit_propagate_chris(self):
+        string = self.cnf_string()
+        (clauses, true_exps) = unit_propagation(string)
+        unique_literals = dict([(literal.name, literal) for literal in list(AND.get_unique_literals(self))])
+        true_var_names = [str(exp) for exp in true_exps]
+        for var_name in true_var_names:
+            if var_name.startswith("~"):
+                var_name = var_name[1:]
+                literal = unique_literals[var_name]
+                literal.assign(False)
+            else:
+                literal = unique_literals[var_name]
+                literal.assign(True)
         return self
 
     def print(self):
         print(self)
+
+    def cnf_string(self):
+        unique_literals = list(AND.get_unique_literals(self))
+        assignment_strings = [literal.name if literal.assignment is True else "~" + literal.name
+                   for literal in unique_literals if literal.assignment is not None]
+        our_string = str(self)
+        out = "&".join([our_string] + assignment_strings)
+        return out
+
+    # returns in-order list of inverted and otherwise literals
+    @staticmethod
+    def get_literals(formula): #PASS an AND
+        literals = []
+        for clause in formula:
+            for prop in clause:
+                literals.append(prop)
+        return literals
+
+    # returns a set of unique literals showing up in the formula
+    @staticmethod
+    def get_unique_literals(formula): #PASS an AND
+        literals = AND.get_literals(formula)
+        base_literals = [literal_or_not.literal if isinstance(literal_or_not, NOT) else literal_or_not
+                for literal_or_not in literals]
+        unique = set(base_literals)
+        return unique
 
     @staticmethod
     def from_string_to_cnf(expression: Expr):
@@ -150,5 +203,4 @@ class AND:
                 or_clauses.append(clause)
 
         return AND(*or_clauses)
-
 
