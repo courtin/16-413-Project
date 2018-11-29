@@ -184,11 +184,8 @@ def eliminate_implications(s):
     >>> eliminate_implications(A >> (~B << C))
     ((~B | ~C) | ~A)
     """
-    #print(s)
-    if not s.args or is_symbol(s.op): return s     ## (Atoms are unchanged.)    
-    #print(s.args)
+    if not s.args or is_symbol(s.op): return s     ## (Atoms are unchanged.)
     args = list(map(eliminate_implications, s.args))
-    #print(args)
     a, b = args[0], args[-1]
     if s.op == '>>':
         return (b | ~a)
@@ -218,7 +215,7 @@ def move_not_inwards(s):
     elif is_symbol(s.op) or not s.args:
         return s
     else:
-        return Expr(s.op, *map(move_not_inwards, s.args))
+        return Expr(s.op, *list(map(move_not_inwards, s.args)))
 
 def distribute_and_over_or(s):
     """Given a sentence s consisting of conjunctions and disjunctions
