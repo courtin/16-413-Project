@@ -120,7 +120,7 @@ class AND:
     # Calls into the unit_prop library code
     def unit_propagate(self):
         string = self.cnf_string()
-        (clauses, true_exps) = unit_propagation(string)
+        (clauses, true_exps) = unit_propagation_library(string)
         unique_literals = self.literals_by_name
         true_var_names = [str(exp) for exp in true_exps]
         for var_name in true_var_names:

@@ -3,7 +3,7 @@ from logic import *
 from copy import *
 
 
-def unit_propagation(s):
+def unit_propagation_library(s):
     # This implementation of unit propagation works but doesn't record support for each clause; will update
 
     clauses = check_input(s)
@@ -33,7 +33,3 @@ def unit_propagation(s):
                         c.args.remove(fe)  # Remove that literal from the clause
         clauses = trim_or(clauses)  # Clean up syntax
     return clauses, true_exp
-
-
-s = "(A1 ==> (X1 <=>(P1&V1)))&P1&~V1&A1"
-print(unit_propagation(s))
