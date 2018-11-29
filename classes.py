@@ -57,7 +57,7 @@ class NOT(Literals):
         self.literal.assign(not value)
 
     def __copy__(self):
-        return NOT(self.literal.copy())
+        return NOT(copy(self.literal))
 
     def __str__(self):
         if self.literal.assignment is not None:
@@ -75,7 +75,7 @@ class OR:
         return "( " + " | ".join([str(literal) for literal in self.literals]) + " )"
 
     def __copy__(self):
-        return OR(*[literal.copy() for literal in self.literals])
+        return OR(*[copy(literal) for literal in self.literals])
 
     def __iter__(self):
         return self.literals.__iter__()
@@ -91,7 +91,7 @@ class AND:
         return "( " + " & ".join([str(clause) for clause in self.clauses]) + " )"
 
     def __copy__(self):
-        return AND(*[clause.copy() for clause in self.clauses])
+        return AND(*[copy(clause) for clause in self.clauses])
 
     def __iter__(self):
         return self.clauses.__iter__()
@@ -129,7 +129,12 @@ class AND:
         unique_literals = list(AND.get_unique_literals(self))
         assignment_strings = [literal.name if literal.assignment is True else "~" + literal.name
                    for literal in unique_literals if literal.assignment is not None]
-        our_string = str(self)
+
+        unassigned_self = copy(self)
+        for literal in AND.get_unique_literals(unassigned_self):
+            literal.assign(None)
+
+        our_string = str(unassigned_self)
         out = "&".join([our_string] + assignment_strings)
         return out
 
