@@ -52,7 +52,7 @@ class Expr:
         "Op is a string or number; args are Exprs (or are coerced to Exprs)."
         assert isinstance(op, str) or (isnumber(op) and not args)
         self.op = num_or_str(op)
-        self.args = map(expr, args) ## Coerce args to Exprs
+        self.args = list(map(expr, args)) ## Coerce args to Exprs
 
     def __call__(self, *args):
         """Self must be a symbol with no args, such as Expr('F').  Create a new
@@ -65,11 +65,11 @@ class Expr:
         if len(self.args) == 0: # Constant or proposition with arity 0
             return str(self.op)
         elif is_symbol(self.op): # Functional or Propositional operator
-            return '%s(%s)' % (self.op, ', '.join(map(repr, self.args)))
+            return '%s(%s)' % (self.op, ', '.join(list(map(repr, self.args))))
         elif len(self.args) == 1: # Prefix operator
             return self.op + repr(self.args[0])
         else: # Infix operator
-            return '(%s)' % (' '+self.op+' ').join(map(repr, self.args))
+            return '(%s)' % (' '+self.op+' ').join(list(map(repr, self.args)))
 
     def __eq__(self, other):
         """x and y are equal iff their ops and args are equal."""
@@ -143,8 +143,8 @@ def is_prop_symbol(s):
 
 
 ## Useful constant Exprs used in examples and code:
-TRUE, FALSE, ZERO, ONE, TWO = map(Expr, ['TRUE', 'FALSE', 0, 1, 2])
-A, B, C, F, G, P, Q, x, y, z  = map(Expr, 'ABCFGPQxyz')
+TRUE, FALSE, ZERO, ONE, TWO = list(map(Expr, ['TRUE', 'FALSE', 0, 1, 2]))
+A, B, C, F, G, P, Q, x, y, z  = list(map(Expr, 'ABCFGPQxyz'))
 
 def to_cnf(s, SHOW_STEPS=False):
     """Convert a propositional logical sentence s to conjunctive normal form.
@@ -159,23 +159,24 @@ def to_cnf(s, SHOW_STEPS=False):
     (A & (D | B) & (E | B))
     """
     if isinstance(s, str): s = expr(s)
+    print(s)
     if SHOW_STEPS:
-        print "Initial Expression:\n%s"%s
+        print("Initial Expression:\n%s"%s)
     si = eliminate_implications(s) # Steps 1, 2 from p. 215
     if SHOW_STEPS:
         if not si.__eq__(s):
-            print "Eliminate Implications:"
-            print si
+            print("Eliminate Implications:")
+            print(si)
     sn = move_not_inwards(si) # Step 3
     if SHOW_STEPS:
         if not sn.__eq__(si):
-            print "De Morgan's Theorem:"
-            print sn
+            print("De Morgan's Theorem:")
+            print(sn)
     sd =  distribute_and_over_or(sn) # Step 4
     if SHOW_STEPS:
         if not sd.__eq__(sn):
-            print "Distribution"
-            print sd
+            print("Distribution")
+            print(sd)
     return sd
 def eliminate_implications(s):
     """Change >>, <<, and <=> into &, |, and ~. That is, return an Expr
@@ -183,8 +184,11 @@ def eliminate_implications(s):
     >>> eliminate_implications(A >> (~B << C))
     ((~B | ~C) | ~A)
     """
-    if not s.args or is_symbol(s.op): return s     ## (Atoms are unchanged.)
-    args = map(eliminate_implications, s.args)
+    #print(s)
+    if not s.args or is_symbol(s.op): return s     ## (Atoms are unchanged.)    
+    #print(s.args)
+    args = list(map(eliminate_implications, s.args))
+    #print(args)
     a, b = args[0], args[-1]
     if s.op == '>>':
         return (b | ~a)
@@ -208,8 +212,8 @@ def move_not_inwards(s):
         NOT = lambda b: move_not_inwards(~b)
         a = s.args[0]
         if a.op == '~': return move_not_inwards(a.args[0]) # ~~A ==> A
-        if a.op =='&': return NaryExpr('|', *map(NOT, a.args))
-        if a.op =='|': return NaryExpr('&', *map(NOT, a.args))
+        if a.op =='&': return NaryExpr('|', *list(map(NOT, a.args)))
+        if a.op =='|': return NaryExpr('&', *list(map(NOT, a.args)))
         return s
     elif is_symbol(s.op) or not s.args:
         return s
@@ -236,10 +240,10 @@ def distribute_and_over_or(s):
             rest = others[0]
         else:
             rest = NaryExpr('|', *others)
-        return NaryExpr('&', *map(distribute_and_over_or,
-                                  [(c|rest) for c in conj.args]))
+        return NaryExpr('&', *list(map(distribute_and_over_or,
+                                  [(c|rest) for c in conj.args])))
     elif s.op == '&':
-        return NaryExpr('&', *map(distribute_and_over_or, s.args))
+        return NaryExpr('&', *list(map(distribute_and_over_or, s.args)))
     else:
         return s
 
