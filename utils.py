@@ -1,6 +1,5 @@
 from __future__ import generators
 import operator, math, random, copy, sys,  os.path, bisect
-
 # Compatibility with Python 2.2 and 2.3
 
 # The AIMA code is designed to run in Python 2.2 and up (at some point,
@@ -215,7 +214,27 @@ def trim_or(clauses):
         clauses = [c.args[0] if (c in clauses_to_trim) else c for c in clauses]
     return clauses
 
+def make_sentance(clauses):
+        s = ""
+        for c in clauses:
+            if s == "":
+                s = "("+c+")"
+            else:
+                s += "&("+c+")"
+        return s
 
+def print_conf(conflict, preceeding = ""):
+    s = preceeding+" Conflict:"
+    for c in conflict:
+        s = s +"%s = %i"%(c[0], c[1])+", "
+    print("%s"%s)
+    
+def print_diag(diagnoses, preceeding = ""):
+    for diagnosis in diagnoses:
+        s = preceeding
+        for c in diagnosis:
+            s = s +"%s = %i"%(c[0], c[1])+", "
+    print(s)
 
 # Simple Data Structures: infinity, Dict, Struct
 

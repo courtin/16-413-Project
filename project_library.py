@@ -3,36 +3,6 @@ from logic import *
 from copy import *
 
 
-def make_sentance(clauses):
-    s = ""
-    for c in clauses:
-        if s == "":
-            s = "(" + c + ")"
-        else:
-            s += "&(" + c + ")"
-    return s
-
-
-def sentance_to_clauses(s):
-    s_cnf = to_cnf(s)  # Put sentance into CNF
-    clauses = conjuncts(s_cnf)  # Split CNF sentance into a list of clauses
-    return clauses
-
-
-def check_input(s):
-    if isinstance(s, str):  # Check input formatting
-        return sentance_to_clauses(s)  # If the input is an arbitrary sentance, convert to cnf
-    elif isinstance(s, list):  # If the input is a list
-        if (isinstance(s[0], str)):  # If it's a list of strings
-            s = make_sentance(s)  # make it a sentance
-            return sentance_to_clauses(s)
-        else:
-            # Assume list is of clauses in CNF
-            return s
-    else:
-        print("Bad input")
-
-
 def unit_propagation(s):
     # This implementation of unit propagation works but doesn't record support for each clause; will update
 
@@ -63,3 +33,7 @@ def unit_propagation(s):
                         c.args.remove(fe)  # Remove that literal from the clause
         clauses = trim_or(clauses)  # Clean up syntax
     return clauses, true_exp
+
+
+s = "(A1 ==> (X1 <=>(P1&V1)))&P1&~V1&A1"
+print(unit_propagation(s))
