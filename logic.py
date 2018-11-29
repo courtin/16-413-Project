@@ -1,6 +1,7 @@
 from __future__ import generators
 from utils import *
 import re
+
 class Expr:
     """A symbolic mathematical expression.  We use this class for logical
     expressions, and for terms within logical expressions. In general, an
