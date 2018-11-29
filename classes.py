@@ -74,12 +74,32 @@ class OR:
             return ""
         return "( " + " | ".join([str(literal) for literal in self.literals]) + " )"
 
-    def __copy__(self):
-        return OR(*[copy(literal) for literal in self.literals])
+    # You can't just deep copy all the literals, you need to make a new copy shared across the new AND
+    def smart_copy(self, new_literals_by_old):
+        return OR(*[
+                NOT(new_literals_by_old[literal.literal]) if isinstance(literal, NOT) else new_literals_by_old[literal]
+                    for literal in self.literals])
 
     def __iter__(self):
         return self.literals.__iter__()
 
+    # True if all literals have assignments
+    # otherwise False
+    @property
+    def is_complete(self):
+        for lit in self.literals:
+            if lit.assignment is None:
+                return False
+        return True
+
+    # True if there is a true literal in the ORs,
+    # otherwise False
+    @property
+    def has_true(self):
+        for lit in self.literals:
+            if lit.assignment is True:
+                return True
+        return False
 
 class AND:
     def __init__(self, *clauses: [OR]):
@@ -91,7 +111,8 @@ class AND:
         return "( " + " & ".join([str(clause) for clause in self.clauses]) + " )"
 
     def __copy__(self):
-        return AND(*[copy(clause) for clause in self.clauses])
+        old_to_new_literals = dict([(literal, copy(literal)) for (name, literal) in self.literals_by_name.items()])
+        return AND(*[clause.smart_copy(old_to_new_literals) for clause in self.clauses])
 
     def __iter__(self):
         return self.clauses.__iter__()
@@ -112,6 +133,7 @@ class AND:
                 literal.assign(True)
         return self
 
+    # for one-line convenience
     def print(self):
         print(self)
 
@@ -127,6 +149,21 @@ class AND:
         our_string = str(unassigned_self)
         out = "&".join([our_string] + assignment_strings)
         return out
+
+    # If every OR has a true and is complete
+    @property
+    def is_satisfied(self):
+        for clause in self.clauses:
+            if not clause.is_complete or not clause.has_true:
+                return False
+        return True
+
+    @property
+    def is_complete(self):
+        for clause in self.clauses:
+            if not clause.is_complete:
+                return False
+        return True
 
     # returns a dict of the unique literals by name
     @property
