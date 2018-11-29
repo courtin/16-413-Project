@@ -159,6 +159,7 @@ def to_cnf(s, SHOW_STEPS=False):
     (A & (D | B) & (E | B))
     """
     if isinstance(s, str): s = expr(s)
+    print(s)
     if SHOW_STEPS:
         print("Initial Expression:\n%s"%s)
     si = eliminate_implications(s) # Steps 1, 2 from p. 215
