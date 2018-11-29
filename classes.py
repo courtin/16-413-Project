@@ -96,21 +96,11 @@ class AND:
     def __iter__(self):
         return self.clauses.__iter__()
 
-    # modifies this instance, calls one round of unit propagation
+    # Calls into the unit_prop library code
     def unit_propagate(self):
-        for or_clause in self.clauses:
-            if len([literal for literal in or_clause.literals if literal.assignment is True]) > 0:
-                continue
-            unassigned = [literal for literal in or_clause.literals if literal.assignment is None]
-            if len(unassigned) >= 2 or len(unassigned) == 0:
-                continue
-            unassigned[0].assign(True)
-            return
-
-    def unit_propagate_chris(self):
         string = self.cnf_string()
         (clauses, true_exps) = unit_propagation(string)
-        unique_literals = dict([(literal.name, literal) for literal in list(AND.get_unique_literals(self))])
+        unique_literals = self.literals_by_name
         true_var_names = [str(exp) for exp in true_exps]
         for var_name in true_var_names:
             if var_name.startswith("~"):
@@ -137,6 +127,11 @@ class AND:
         our_string = str(unassigned_self)
         out = "&".join([our_string] + assignment_strings)
         return out
+
+    # returns a dict of the unique literals by name
+    @property
+    def literals_by_name(self):
+        return dict([(literal.name, literal) for literal in list(AND.get_unique_literals(self))])
 
     # returns in-order list of inverted and otherwise literals
     @staticmethod
