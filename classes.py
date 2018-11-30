@@ -141,7 +141,7 @@ class AND:
     def cnf_string(self):
         unique_literals = list(AND.get_unique_literals(self))
         assignment_strings = [literal.name if literal.assignment is True else "~" + literal.name
-                   for literal in unique_literals if literal.assignment is not None]
+                              for literal in unique_literals if literal.assignment is not None]
 
         unassigned_self = copy(self)
         for literal in AND.get_unique_literals(unassigned_self):
@@ -170,6 +170,14 @@ class AND:
     @property
     def literals_by_name(self):
         return dict([(literal.name, literal) for literal in list(AND.get_unique_literals(self))])
+
+    # returns the literals that are true (and ~var for false vars), not including the var if not assigned
+    # e.g.: print(AND.from_string_to_cnf("A & B & C & ~D & E").unit_propagate().literals_true)
+    @property
+    def literals_true(self) -> [str]:
+        literals = [literal.name if literal.assignment else "~" + literal.name
+                         for literal in AND.get_unique_literals(self) if literal.assignment is not None]
+        return literals
 
     # returns in-order list of inverted and otherwise literals
     @staticmethod
@@ -256,7 +264,7 @@ class Spaceship():
         system.append("C1 ==> (Y1 <=>B1)")
         system.append("C2 ==> (Y2 <=>B2)")
         return system
-    
+
     def update_colors(self):
         #Draw good components in blue and unknown components in red
         for c in self.components:
@@ -284,7 +292,6 @@ class Spaceship():
                           "R1":L("R1",None),
                           "C1":L("C1",None),
                           "C2":L("C2",None)}
-        
         self.comp_dict = {"A4":(25,50,8,8,'k','c'),
                  "A1":(5,65,8,8,'k','c'),
                  "A3":(7.5,25,10,8,'k','c'),
@@ -336,27 +343,28 @@ class Spaceship():
                 "l19":([60,60,25],[36,10,10],'k'),#R1 to A7
                 "l20":([18,18],[5,0],'k')
                 }
-    
+
     def change_input(self,inp,new_value):
         #Change the state of an input
         self.inputs[inp] = L(inp,new_value)
-        
+
     def change_component(self,comp,new_value):
         #Change the state of a component
         self.components[comp] = L(comp,new_value)
         self.update_colors()
-        
+
     def all_unknown(self):
         #Set all components in the ship to unknown
         for c in self.components:
             self.change_component(c,False)
         self.update_colors()
+
     def all_working(self):
         #Set all components in the ship to good
         for c in self.components:
             self.change_component(c,True)
         self.update_colors()
-            
+
     def initialize(self):
         #Turn on a nominally working set of valves
         self.change_input("B1",True)
@@ -364,7 +372,7 @@ class Spaceship():
         self.change_input("P2",True)
         self.change_input("V1",True)
         self.change_input("V2",True)
-        
+
     def make_sentance(self,structure):
         #Make sentance specifically for dict data strucutres
         s = ""
@@ -404,26 +412,23 @@ class Spaceship():
                 ps = i + "=" + str(int(self.inputs[i]._assignment))
             else:
                 ps = i
-                    
+
             plt.text(x,y,ps,fontsize=18,color=t[2], horizontalalignment = "center",verticalalignment = "center")
 
         for l in self.line_dict:
             t = self.line_dict[l]
             plt.plot(t[0], t[1], color = t[2])
 
-
-        #plt.axis('scaled')
         plt.xlim(-10,80)
         plt.axis('off')
         plt.show()
+
     def check_conflicts(self,observations):
-        #Check if the current state of the spaceship is in conflict
-        #Returns true if a set of inputs, component assignments, and observations is a conflict for a given system
+        # Check if the current state of the spaceship is in conflict
+        # Returns true if a set of inputs, component assignments, and observations is a conflict for a given system
         snt = make_sentance(self.system)+"&"+self.make_sentance(self.components)+"&"+self.make_sentance(self.inputs)
         clauses, true_statements = unit_propagation(snt)
         obs = conjuncts(to_cnf(observations))
-        
-        not_obs = []
 
         for o in obs:
             not_obs = (to_cnf(~o))
@@ -431,6 +436,7 @@ class Spaceship():
                 return True
 
         return False
+
 
 class AStarNode:
     def __init__(self, variable, decision, probability, parent=None):
@@ -440,12 +446,14 @@ class AStarNode:
         self.decision = decision
         self.children = []
         self.a_star_trimmed = False
+
     @property
     def total_cost(self):
         ours = (self.probability if self.probability is not None else 1)
         if self.parent is None:
             return ours
         return self.parent.total_cost * ours
+
     @property
     def assignments(self):
         ours = [(self.decision_variable, self.decision)]
@@ -455,14 +463,17 @@ class AStarNode:
             else:
                 return ours
         return self.parent.assignments + ours
+    
     @property
     def assignments_string(self):
         return " & ".join([("~" if not assignment[1] else "") + assignment[0] for assignment in self.assignments])
+
     @property
     def is_trimmed(self):
         if self.parent is None:
             return self.a_star_trimmed
         return self.a_star_trimmed or self.parent.is_trimmed
+
     def set_trimmed(self, trim: bool):
         self.a_star_trimmed = trim
         
