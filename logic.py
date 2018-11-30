@@ -177,6 +177,11 @@ def to_cnf(s, SHOW_STEPS=False):
         if not sd.__eq__(sn):
             print("Distribution")
             print(sd)
+    #check if sentance in cnf
+    for c in conjuncts(sd):
+        for d in disjuncts(c):
+            if ("&"==d.op):
+                return(to_cnf(sd, SHOW_STEPS))
     return sd
 def eliminate_implications(s):
     """Change >>, <<, and <=> into &, |, and ~. That is, return an Expr
