@@ -140,7 +140,7 @@ class AND:
     def print(self):
         print(self)
 
-    def cnf_string(self):
+    def cnf_string(self) -> str:
         unique_literals = list(AND.get_unique_literals(self))
         assignment_strings = [literal.name if literal.assignment is True else "~" + literal.name
                    for literal in unique_literals if literal.assignment is not None]
@@ -155,14 +155,14 @@ class AND:
 
     # If every OR has a true and is complete
     @property
-    def is_satisfied(self):
+    def is_satisfied(self) -> bool:
         for clause in self.clauses:
             if not clause.is_complete or not clause.has_true:
                 return False
         return True
 
     @property
-    def is_complete(self):
+    def is_complete(self) -> bool:
         for clause in self.clauses:
             if not clause.is_complete:
                 return False
@@ -170,12 +170,20 @@ class AND:
 
     # returns a dict of the unique literals by name
     @property
-    def literals_by_name(self):
+    def literals_by_name(self) -> dict:
         return dict([(literal.name, literal) for literal in list(AND.get_unique_literals(self))])
+
+    # returns the literals that are true (and ~var for false vars), not including the var if not assigned
+    # e.g.: print(AND.from_string_to_cnf("A & B & C & ~D & E").unit_propagate().literals_true)
+    @property
+    def literals_true(self) -> [str]:
+        literals = [literal.name if literal.assignment else "~" + literal.name
+                            for literal in AND.get_unique_literals(self) if literal.assignment is not None]
+        return literals
 
     # returns in-order list of inverted and otherwise literals
     @staticmethod
-    def get_literals(formula): #PASS an AND
+    def get_literals(formula) -> []:  # formula: AND
         literals = []
         for clause in formula:
             for prop in clause:
@@ -184,7 +192,7 @@ class AND:
 
     # returns a set of unique literals showing up in the formula
     @staticmethod
-    def get_unique_literals(formula): #PASS an AND
+    def get_unique_literals(formula) -> set:  # formula: AND
         literals = AND.get_literals(formula)
         base_literals = [literal_or_not.literal if isinstance(literal_or_not, NOT) else literal_or_not
                 for literal_or_not in literals]
@@ -266,6 +274,7 @@ class Spaceship():
                 self.comp_dict[c] = (*self.comp_dict[c][0:5],'r')
             else:
                 self.comp_dict[c] = (*self.comp_dict[c][0:5],'c')
+
     def __init__(self):
         self.system = self.create_system()
         self.inputs = {"P1":L("P1",None),
@@ -357,18 +366,22 @@ class Spaceship():
         #Change the state of a component
         self.components[comp] = L(comp,new_value)
         self.update_colors()
+
     def change_state(self,ns,new_value):
         #Change the internal state of a component
         self.states[ns] = L(ns,new_value)
+
     def all_off(self):
         #Turn off all inputs
         for c in self.inputs:
-            self.change_input(c,False)
+            self.change_input(c, False)
+
     def all_unknown(self):
         #Set all components in the ship to unknown
         for c in self.components:
-            self.change_component(c,False)
+            self.change_component(c, False)
         self.update_colors()
+
     def all_working(self):
         #Set all components in the ship to good
         for c in self.components:
@@ -398,6 +411,7 @@ class Spaceship():
             else:
                 s += "&("+c+")"
         return s
+
     def update_states(self, true_exp):
         #Update states for plotting
         for e in true_exp:
@@ -413,6 +427,7 @@ class Spaceship():
                 self.change_input(key,val)
             elif key in self.states:
                 self.change_state(key,val)
+
     def plot_spaceship(self):
         #Draw the current state of the spaceship
         plt.clf()
@@ -496,6 +511,12 @@ class AStarNode:
             else:
                 return ours
         return self.parent.assignments + ours
+
+    # returns in [(X1, 0),..] format
+    @property
+    def resolution(self):
+        return [(assignment[0], 1 if assignment[1] else 0) for assignment in self.assignments]
+
     @property
     def assignments_string(self):
         return " & ".join([("~" if not assignment[1] else "") + assignment[0] for assignment in self.assignments])
