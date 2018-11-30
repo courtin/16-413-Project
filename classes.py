@@ -264,7 +264,6 @@ class Spaceship():
                 self.comp_dict[c] = (*self.comp_dict[c][0:5],'r')
             else:
                 self.comp_dict[c] = (*self.comp_dict[c][0:5],'c')
-
     def __init__(self):
         self.system = self.create_system()
         self.inputs = {"P1":L("P1",False),
@@ -275,16 +274,16 @@ class Spaceship():
                       "V4":L("V4",False),
                       "B1":L("B1",False),
                       "B2":L("B2",False),}
-        self.components = {"A1":L("A1",True),
-                          "A2":L("A2",True),
-                          "A3":L("A3",True),
-                          "A4":L("A4",True),
-                          "A5":L("A5",True),
-                          "A6":L("A6",True),
-                          "A7":L("O1",True),
-                          "R1":L("R1",True),
-                          "C1":L("C1",True),
-                          "C2":L("C2",True)}
+        self.components = {"A1":L("A1",None),
+                          "A2":L("A2",None),
+                          "A3":L("A3",None),
+                          "A4":L("A4",None),
+                          "A5":L("A5",None),
+                          "A6":L("A6",None),
+                          "A7":L("O1",None),
+                          "R1":L("R1",None),
+                          "C1":L("C1",None),
+                          "C2":L("C2",None)}
         
         self.comp_dict = {"A4":(25,50,8,8,'k','c'),
                  "A1":(5,65,8,8,'k','c'),
@@ -351,6 +350,12 @@ class Spaceship():
         #Set all components in the ship to unknown
         for c in self.components:
             self.change_component(c,False)
+        self.update_colors()
+    def all_working(self):
+        #Set all components in the ship to good
+        for c in self.components:
+            self.change_component(c,True)
+        self.update_colors()
             
     def initialize(self):
         #Turn on a nominally working set of valves
@@ -375,7 +380,6 @@ class Spaceship():
             else:
                 s += "&("+c+")"
         return s
-
     def plot_spaceship(self):
         #Draw the current state of the spaceship
         plt.clf()
@@ -407,11 +411,11 @@ class Spaceship():
             t = self.line_dict[l]
             plt.plot(t[0], t[1], color = t[2])
 
+
         #plt.axis('scaled')
         plt.xlim(-10,80)
         plt.axis('off')
         plt.show()
-
     def check_conflicts(self,observations):
         #Check if the current state of the spaceship is in conflict
         #Returns true if a set of inputs, component assignments, and observations is a conflict for a given system
@@ -425,55 +429,7 @@ class Spaceship():
             not_obs = (to_cnf(~o))
             if not_obs in true_statements:
                 return True
+
         return False
 
 
-class AStarNode:
-    def __init__(self, variable, decision, probability, parent=None):
-        self.parent = parent
-        self.probability = probability
-        self.decision_variable = variable
-        self.decision = decision
-        self.children = []
-        self.a_star_trimmed = False
-
-    @property
-    def total_cost(self):
-        ours = (self.probability if self.probability is not None else 1)
-        if self.parent is None:
-            return ours
-        return self.parent.total_cost * ours
-
-    @property
-    def assignments(self):
-        ours = [(self.decision_variable, self.decision)]
-        if self.parent is None:
-            if self.decision_variable is None:
-                return []
-            else:
-                return ours
-        return self.parent.assignments + ours
-
-    @property
-    def assignments_string(self):
-        return " & ".join([("~" if not assignment[1] else "") + assignment[0] for assignment in self.assignments])
-
-    @property
-    def is_trimmed(self):
-        if self.parent is None:
-            return self.a_star_trimmed
-        return self.a_star_trimmed or self.parent.is_trimmed
-
-    def set_trimmed(self, trim: bool):
-        self.a_star_trimmed = trim
-
-    def construct_tree(self, remaining_components: [(str, float)]):
-        if len(remaining_components) == 0:
-            return
-        (variable, good_probability) = remaining_components[0]
-        remaining = remaining_components[1:]
-        works_tree = AStarNode(variable, True, good_probability, self)
-        broken_tree = AStarNode(variable, False, 1.0 - good_probability, self)
-        self.children = tuple([works_tree, broken_tree])
-        works_tree.construct_tree(remaining)
-        broken_tree.construct_tree(remaining)
