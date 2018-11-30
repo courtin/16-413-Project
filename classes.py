@@ -455,6 +455,10 @@ class AStarNode:
         return self.parent.assignments + ours
 
     @property
+    def assignments_string(self):
+        return " & ".join([("~" if not assignment[1] else "") + assignment[0] for assignment in self.assignments])
+
+    @property
     def is_trimmed(self):
         if self.parent is None:
             return self.a_star_trimmed
