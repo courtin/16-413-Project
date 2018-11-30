@@ -216,7 +216,7 @@ def trim_or(clauses):
         clauses = [c.args[0] if (c in clauses_to_trim) else c for c in clauses]
 
     for c in copy(clauses):
-        if ("|" in c.op):
+        if ("|" in c.op) and len(c.args)==0:
             clauses.remove(c)
 
     return clauses
