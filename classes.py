@@ -121,7 +121,7 @@ class AND:
 
     # Calls into the unit_prop library code
     def unit_propagate(self):
-        string = self.cnf_string()
+        string = self.cnf_string
         (clauses, true_exps) = unit_propagation(string)
         unique_literals = self.literals_by_name
         true_var_names = [str(exp) for exp in true_exps]
@@ -140,6 +140,7 @@ class AND:
     def print(self):
         print(self)
 
+    @property
     def cnf_string(self) -> str:
         unique_literals = list(AND.get_unique_literals(self))
         assignment_strings = [literal.name if literal.assignment is True else "~" + literal.name
