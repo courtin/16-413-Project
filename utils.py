@@ -221,7 +221,7 @@ def parse_input(a,s):
         if c in s.components:
             to_change.append(c)
     return to_change
-
+    
 def convert_to_set(s):
     conflict = []
     for X in s.components:
