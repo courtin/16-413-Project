@@ -1,5 +1,6 @@
 from logic import *
 from project_library import *
+import matplotlib.pyplot as plt
 
 class Literals:
     @property
@@ -240,4 +241,189 @@ class AND:
                 or_clauses.append(clause)
 
         return AND(*or_clauses)
+
+class Spaceship():
+    def create_system(self):
+        system = []
+        system.append("A1 ==> (X1 <=>(P1&V1))")
+        system.append("A2 ==> (X2 <=>(P2&V2))")
+        system.append("A3 ==> (T1 <=>(X1&X2))")
+        system.append("A4 ==> (X3 <=>(V3&P1))")
+        system.append("A5 ==> (X4 <=>(V4&P2))")
+        system.append("A6 ==> (T2 <=>(X3&X4))")
+        system.append("A7 ==> (S1 <=>((T1&Y3)|(T2&Y3)))")
+        system.append("R1 ==> (Y3 <=>((Y1|Y2)))")
+        system.append("C1 ==> (Y1 <=>B1)")
+        system.append("C2 ==> (Y2 <=>B2)")
+        return system
+    
+    def update_colors(self):
+        #Draw good components in blue and unknown components in red
+        for c in self.components:
+            if self.components[c]._assignment == False:
+                self.comp_dict[c] = (*self.comp_dict[c][0:5],'r')
+            else:
+                self.comp_dict[c] = (*self.comp_dict[c][0:5],'c')
+    def __init__(self):
+        self.system = self.create_system()
+        self.inputs = {"P1":L("P1",False),
+                      "P2":L("P2",False),
+                      "V1":L("V1",False),
+                      "V2":L("V2",False),
+                      "V3":L("V3",False),
+                      "V4":L("V4",False),
+                      "B1":L("B1",False),
+                      "B2":L("B2",False),}
+        self.components = {"A1":L("A1",True),
+                          "A2":L("A2",True),
+                          "A3":L("A3",True),
+                          "A4":L("A4",True),
+                          "A5":L("A5",True),
+                          "A6":L("A6",True),
+                          "A7":L("O1",True),
+                          "R1":L("R1",True),
+                          "C1":L("C1",True),
+                          "C2":L("C2",True)}
+        
+        self.comp_dict = {"A4":(25,50,8,8,'k','c'),
+                 "A1":(5,65,8,8,'k','c'),
+                 "A3":(7.5,25,10,8,'k','c'),
+                 "A2":(10,55,8,8,'k','c'),
+                 "A5":(30,40,8,8,'k','c'),
+                 "A6":(27.5,25,10,8,'k','c'),
+                 "A7":(17.5,10,15,8,'k','c'),
+                 "C2":(65,65,8,8,'k','c'),
+                 "C1":(55,65,8,8,'k','c'),
+                 "R1":(60,40,15,8,'k','c'),
+                }
+        self.inp_dict = {"P1":(5,75, 'k'),
+               "P2":(30,75, 'k'),
+               "V1":(-15,65, 'k'),
+               "V2":(-15,55, 'k'),
+               "V3":(-15,48, 'k'),
+               "V4":(-15,40, 'k'),
+               "B2":(65,75, 'k'),
+               "B1":(50,75, 'k'),
+               "X1":(0,44,'g'),
+                "X2":(15,44,'b'),
+                "X3":(20,33,'g'),
+                "X4":(37,32,'b'),
+                "T1":(0,15,'r'),
+                "T2":(35,15,'r'),
+                "Y1":(50,50,'k'),
+                "Y2":(70,50,'k'),
+                "Y3":(65,20,'k'),
+                "S1":(18,-5,'k'),
+               }
+        self.line_dict = {"l1":([5,5],[73,68], 'g'),
+                "l2":([5,25, 25],[70,70, 53], 'g'),
+                "l3":([30,30],[73,43], 'b'),
+                "l4":([30,10, 10],[63,63,58], 'b'),
+                "l5":([30,30],[36,29], 'b'),
+                "l6":([25,25],[46,29], 'g'),
+                "l7":([10,10],[51,29], 'b'),
+                "l8":([5,5],[61,29], 'g'),
+                "l9":([-5,1],[65,65], 'k'),#V1 to A1
+                "l10":([-5,6],[55,55], 'k'),#V2 to A2
+                "l11":([-5,21],[48,48], 'k'),#V3 to A4
+                "l12":([-5,26],[40,40], 'k'),#V4 to A5
+                "l13":([7.5, 7.5, 12.5,12.5], [21, 18, 18,14], 'r'),#A3 to A7
+                "l14":([27.5, 27.5, 22.5,22.5], [21, 18, 18,14], 'r'),#A3 to A7
+                "l15":([65,65],[69,73],'k'),#B2 to C2
+                "l16":([55,55],[69,73],'k'),#B1 to C1
+                "l17":([65,65],[61,44],'k'),#B1 to C1
+                "l18":([55,55],[61,44],'k'),#B1 to C1
+                "l19":([60,60,25],[36,10,10],'k'),#R1 to A7
+                "l20":([18,18],[5,0],'k')
+                }
+    
+    def change_input(self,inp,new_value):
+        #Change the state of an input
+        self.inputs[inp] = L(inp,new_value)
+        
+    def change_component(self,comp,new_value):
+        #Change the state of a component
+        self.components[comp] = L(comp,new_value)
+        self.update_colors()
+        
+    def all_unknown(self):
+        #Set all components in the ship to unknown
+        for c in self.components:
+            self.change_component(c,False)
+            
+    def initialize(self):
+        #Turn on a nominally working set of valves
+        self.change_input("B1",True)
+        self.change_input("P1",True)
+        self.change_input("P2",True)
+        self.change_input("V1",True)
+        self.change_input("V2",True)
+        
+    def make_sentance(self,structure):
+        #Make sentance specifically for dict data strucutres
+        s = ""
+        for e in structure:
+            a = structure[e]._name
+            val = structure[e]._assignment
+            if val:
+                c = a
+            else:
+                c = "~"+a
+            if s == "":
+                s = "("+c+")"
+            else:
+                s += "&("+c+")"
+        return s
+    def plot_spaceship(self):
+        #Draw the current state of the spaceship
+        plt.clf()
+        plt.axes()
+        ax = plt.gca()
+
+        for i in self.comp_dict:
+            t = self.comp_dict[i]
+            x = t[0]
+            y = t[1]
+            lx = t[2]
+            ly = t[3]
+            col = t[4]
+            ax.add_patch(plt.Rectangle((x-lx/2.,y-ly/2.), lx, ly,  fill=True,fc=t[5], ec=col))
+            plt.text(x,y,i, fontsize = 18, horizontalalignment = "center",verticalalignment = "center")
+
+        for i in self.inp_dict:
+            t = self.inp_dict[i]
+            x = t[0]
+            y = t[1]
+            if i in self.inputs:
+                ps = i + "=" + str(int(self.inputs[i]._assignment))
+            else:
+                ps = i
+                    
+            plt.text(x,y,ps,fontsize=18,color=t[2], horizontalalignment = "center",verticalalignment = "center")
+
+        for l in self.line_dict:
+            t = self.line_dict[l]
+            plt.plot(t[0], t[1], color = t[2])
+
+
+        #plt.axis('scaled')
+        plt.xlim(-10,80)
+        plt.axis('off')
+        plt.show()
+    def check_conflicts(self,observations):
+        #Check if the current state of the spaceship is in conflict
+        #Returns true if a set of inputs, component assignments, and observations is a conflict for a given system
+        snt = make_sentance(self.system)+"&"+self.make_sentance(self.components)+"&"+self.make_sentance(self.inputs)
+        clauses, true_statements = unit_propagation(snt)
+        obs = conjuncts(to_cnf(observations))
+        
+        not_obs = []
+
+        for o in obs:
+            not_obs = (to_cnf(~o))
+            if not_obs in true_statements:
+                return True
+
+        return False
+
 

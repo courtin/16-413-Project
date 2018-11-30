@@ -205,6 +205,14 @@ except NameError:
             __isub__ = difference_update
             __ixor__ = symmetric_difference_update
 #Custom for 16.413
+def parse_input(a,s):
+    to_change = []
+    cmps = a.split(',')
+    for c in cmps:
+        if c in s.components:
+            to_change.append(c)
+    return to_change
+
 def trim_or(clauses):
     #Replace clauses of the form "|A" or "|~A" with the more reasonable "A" or "~A"
     clauses_to_trim = []
