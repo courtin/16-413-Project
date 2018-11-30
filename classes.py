@@ -264,6 +264,7 @@ class Spaceship():
                 self.comp_dict[c] = (*self.comp_dict[c][0:5],'r')
             else:
                 self.comp_dict[c] = (*self.comp_dict[c][0:5],'c')
+
     def __init__(self):
         self.system = self.create_system()
         self.inputs = {"P1":L("P1",False),
@@ -374,6 +375,7 @@ class Spaceship():
             else:
                 s += "&("+c+")"
         return s
+
     def plot_spaceship(self):
         #Draw the current state of the spaceship
         plt.clf()
@@ -405,11 +407,11 @@ class Spaceship():
             t = self.line_dict[l]
             plt.plot(t[0], t[1], color = t[2])
 
-
         #plt.axis('scaled')
         plt.xlim(-10,80)
         plt.axis('off')
         plt.show()
+
     def check_conflicts(self,observations):
         #Check if the current state of the spaceship is in conflict
         #Returns true if a set of inputs, component assignments, and observations is a conflict for a given system
@@ -423,7 +425,51 @@ class Spaceship():
             not_obs = (to_cnf(~o))
             if not_obs in true_statements:
                 return True
-
         return False
 
 
+class AStarNode:
+    def __init__(self, variable, decision, probability, parent=None):
+        self.parent = parent
+        self.probability = probability
+        self.decision_variable = variable
+        self.decision = decision
+        self.children = []
+        self.a_star_trimmed = False
+
+    @property
+    def total_cost(self):
+        ours = (self.probability if self.probability is not None else 1)
+        if self.parent is None:
+            return ours
+        return self.parent.total_cost * ours
+
+    @property
+    def assignments(self):
+        ours = [(self.decision_variable, self.decision)]
+        if self.parent is None:
+            if self.decision_variable is None:
+                return []
+            else:
+                return ours
+        return self.parent.assignments + ours
+
+    @property
+    def is_trimmed(self):
+        if self.parent is None:
+            return self.a_star_trimmed
+        return self.a_star_trimmed or self.parent.is_trimmed
+
+    def set_trimmed(self, trim: bool):
+        self.a_star_trimmed = trim
+
+    def construct_tree(self, remaining_components: [(str, float)]):
+        if len(remaining_components) == 0:
+            return
+        (variable, good_probability) = remaining_components[0]
+        remaining = remaining_components[1:]
+        works_tree = AStarNode(variable, True, good_probability, self)
+        broken_tree = AStarNode(variable, False, 1.0 - good_probability, self)
+        self.children = tuple([works_tree, broken_tree])
+        works_tree.construct_tree(remaining)
+        broken_tree.construct_tree(remaining)

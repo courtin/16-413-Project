@@ -32,3 +32,23 @@ def unit_propagation(s):
                         c.args.remove(fe)  # Remove that literal from the clause
         clauses = trim_or(clauses)  # Clean up syntax
     return clauses, true_exp
+
+def update_kernel_diagnoses(kernel_diagnoses, conflict):
+    new_kernel_diagnoses = []
+    if len(kernel_diagnoses) == 0:
+        for component in conflict:
+            new_kernel_diagnoses.append({(component[0], 0)})
+    else:
+        for k in kernel_diagnoses:
+            for c in conflict:
+                k_new = copy(k)
+                k_new.add((c[0], 0))
+                if k_new not in new_kernel_diagnoses:
+                    new_kernel_diagnoses.append(k_new)
+        for i in range(len(new_kernel_diagnoses)):
+            nk = new_kernel_diagnoses.pop(0)
+            for ok in copy(new_kernel_diagnoses):
+                if nk.issubset(ok):
+                    new_kernel_diagnoses.remove(ok)
+            new_kernel_diagnoses.append(nk)
+    return new_kernel_diagnoses
