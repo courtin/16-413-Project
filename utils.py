@@ -205,6 +205,15 @@ except NameError:
             __isub__ = difference_update
             __ixor__ = symmetric_difference_update
 #Custom for 16.413
+def print_diag(diagnoses, preceeding = ""):
+    if len(diagnoses) == 0:
+        print(preceeding)
+    for diagnosis in diagnoses:
+        s = preceeding
+        for c in diagnosis:
+            s = s + "%s = %s"%(c[0], c[1])+", "
+        print(s)
+        
 def parse_input(a,s):
     to_change = []
     cmps = a.split(',')
@@ -219,7 +228,7 @@ def convert_to_set(s):
         if s.components[X]._assignment:
             conflict.append((X,1))
     return set(conflict)
-
+        
 def trim_or(clauses):
     #Replace clauses of the form "|A" or "|~A" with the more reasonable "A" or "~A"
     clauses_to_trim = []
@@ -249,14 +258,11 @@ def print_conf(conflict, preceeding = ""):
     s = preceeding + (" " if preceeding is not "" else "") + "Conflict: "
     s = s + ", ".join(["%s = %i"%(c[0], c[1]) for c in conflict])
     print("%s"%s)
-    
-def print_diag(diagnoses, preceeding = ""):
-    s = preceeding
-    for diagnosis in diagnoses:
-        s = s + ", ".join(["%s = %i" % (c[0], c[1]) for c in diagnosis])
-        if len(diagnosis > 0):
-            s = s + "\n"
-    print(s)
+
+def truth_string_for(configuration: [(str, int)]) -> str:
+    configuration_truth_list = [("" if component[1] is 1 else "~") + component[0] for component in configuration]
+    configuration_truth_string = "&".join(configuration_truth_list)
+    return configuration_truth_string
 
 # Simple Data Structures: infinity, Dict, Struct
 
