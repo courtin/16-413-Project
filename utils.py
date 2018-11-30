@@ -213,6 +213,13 @@ def parse_input(a,s):
             to_change.append(c)
     return to_change
 
+def convert_to_set(s):
+    conflict = []
+    for X in s.components:
+        if s.components[X]._assignment:
+            conflict.append((X,1))
+    return set(conflict)
+
 def trim_or(clauses):
     #Replace clauses of the form "|A" or "|~A" with the more reasonable "A" or "~A"
     clauses_to_trim = []
