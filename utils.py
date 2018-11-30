@@ -1,5 +1,6 @@
 from __future__ import generators
 import operator, math, random, copy, sys,  os.path, bisect
+from copy import copy
 # Compatibility with Python 2.2 and 2.3
 
 # The AIMA code is designed to run in Python 2.2 and up (at some point,
@@ -208,10 +209,16 @@ def trim_or(clauses):
     #Replace clauses of the form "|A" or "|~A" with the more reasonable "A" or "~A"
     clauses_to_trim = []
     for c in clauses:
-        if len(c.args)==1 and (c.op == "|" or c.op == "|~"):
+        if len(c.args)==1 and ("|" in c.op):
             clauses_to_trim.append(c)
+
     if len(clauses_to_trim) > 0:
         clauses = [c.args[0] if (c in clauses_to_trim) else c for c in clauses]
+
+    for c in copy(clauses):
+        if ("|" in c.op):
+            clauses.remove(c)
+
     return clauses
 
 def make_sentance(clauses):
