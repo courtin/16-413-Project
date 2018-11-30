@@ -231,16 +231,16 @@ def make_sentance(clauses):
         return s
 
 def print_conf(conflict, preceeding = ""):
-    s = preceeding+" Conflict:"
-    for c in conflict:
-        s = s +"%s = %i"%(c[0], c[1])+", "
+    s = preceeding + (" " if preceeding is not "" else "") + "Conflict: "
+    s = s + ", ".join(["%s = %i"%(c[0], c[1]) for c in conflict])
     print("%s"%s)
     
 def print_diag(diagnoses, preceeding = ""):
+    s = preceeding
     for diagnosis in diagnoses:
-        s = preceeding
-        for c in diagnosis:
-            s = s +"%s = %i"%(c[0], c[1])+", "
+        s = s + ", ".join(["%s = %i" % (c[0], c[1]) for c in diagnosis])
+        if len(diagnosis > 0):
+            s = s + "\n"
     print(s)
 
 # Simple Data Structures: infinity, Dict, Struct
