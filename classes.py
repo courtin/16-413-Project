@@ -432,4 +432,47 @@ class Spaceship():
 
         return False
 
-
+class AStarNode:
+    def __init__(self, variable, decision, probability, parent=None):
+        self.parent = parent
+        self.probability = probability
+        self.decision_variable = variable
+        self.decision = decision
+        self.children = []
+        self.a_star_trimmed = False
+    @property
+    def total_cost(self):
+        ours = (self.probability if self.probability is not None else 1)
+        if self.parent is None:
+            return ours
+        return self.parent.total_cost * ours
+    @property
+    def assignments(self):
+        ours = [(self.decision_variable, self.decision)]
+        if self.parent is None:
+            if self.decision_variable is None:
+                return []
+            else:
+                return ours
+        return self.parent.assignments + ours
+    @property
+    def assignments_string(self):
+        return " & ".join([("~" if not assignment[1] else "") + assignment[0] for assignment in self.assignments])
+    @property
+    def is_trimmed(self):
+        if self.parent is None:
+            return self.a_star_trimmed
+        return self.a_star_trimmed or self.parent.is_trimmed
+    def set_trimmed(self, trim: bool):
+        self.a_star_trimmed = trim
+        
+    def construct_tree(self, remaining_components: [(str, float)]):
+        if len(remaining_components) == 0:
+            return
+        (variable, good_probability) = remaining_components[0]
+        remaining = remaining_components[1:]
+        works_tree = AStarNode(variable, True, good_probability, self)
+        broken_tree = AStarNode(variable, False, 1.0 - good_probability, self)
+        self.children = tuple([works_tree, broken_tree])
+        works_tree.construct_tree(remaining)
+        broken_tree.construct_tree(remaining)
