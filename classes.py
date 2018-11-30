@@ -138,7 +138,7 @@ class AND:
     def print(self):
         print(self)
 
-    def cnf_string(self):
+    def cnf_string(self) -> str:
         unique_literals = list(AND.get_unique_literals(self))
         assignment_strings = [literal.name if literal.assignment is True else "~" + literal.name
                               for literal in unique_literals if literal.assignment is not None]
@@ -153,14 +153,14 @@ class AND:
 
     # If every OR has a true and is complete
     @property
-    def is_satisfied(self):
+    def is_satisfied(self) -> bool:
         for clause in self.clauses:
             if not clause.is_complete or not clause.has_true:
                 return False
         return True
 
     @property
-    def is_complete(self):
+    def is_complete(self) -> bool:
         for clause in self.clauses:
             if not clause.is_complete:
                 return False
@@ -168,7 +168,7 @@ class AND:
 
     # returns a dict of the unique literals by name
     @property
-    def literals_by_name(self):
+    def literals_by_name(self) -> dict:
         return dict([(literal.name, literal) for literal in list(AND.get_unique_literals(self))])
 
     # returns the literals that are true (and ~var for false vars), not including the var if not assigned
@@ -181,7 +181,7 @@ class AND:
 
     # returns in-order list of inverted and otherwise literals
     @staticmethod
-    def get_literals(formula): #PASS an AND
+    def get_literals(formula) -> []: #PASS an AND
         literals = []
         for clause in formula:
             for prop in clause:
@@ -190,7 +190,7 @@ class AND:
 
     # returns a set of unique literals showing up in the formula
     @staticmethod
-    def get_unique_literals(formula): #PASS an AND
+    def get_unique_literals(formula) -> set: #PASS an AND
         literals = AND.get_literals(formula)
         base_literals = [literal_or_not.literal if isinstance(literal_or_not, NOT) else literal_or_not
                 for literal_or_not in literals]
@@ -463,7 +463,12 @@ class AStarNode:
             else:
                 return ours
         return self.parent.assignments + ours
-    
+
+    # returns in [(X1, 0),..] format
+    @property
+    def resolution(self):
+        return [(assignment[0], 1 if assignment[1] else 0) for assignment in self.assignments]
+
     @property
     def assignments_string(self):
         return " & ".join([("~" if not assignment[1] else "") + assignment[0] for assignment in self.assignments])
