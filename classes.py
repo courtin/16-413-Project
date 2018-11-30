@@ -30,7 +30,7 @@ class L(Literals):
     def name(self):
         return self._name
 
-    def __str__(self):
+    def __repr__(self):
         if self._assignment is not None:
             return self._name + " = " + str(self._assignment)
         return self._name
@@ -59,7 +59,7 @@ class NOT(Literals):
     def __copy__(self):
         return NOT(copy(self.literal))
 
-    def __str__(self):
+    def __repr__(self):
         if self.literal.assignment is not None:
             return self.name + " = " + str(self.assignment)
         return self.name
@@ -69,7 +69,7 @@ class OR:
     def __init__(self, *literals: [Literals]):
         self.literals: [Literals] = literals
 
-    def __str__(self):
+    def __repr__(self):
         if len(self.literals) is 0:
             return ""
         return "( " + " | ".join([str(literal) for literal in self.literals]) + " )"
@@ -105,7 +105,7 @@ class AND:
     def __init__(self, *clauses: [OR]):
         self.clauses: [OR] = clauses
 
-    def __str__(self):
+    def __repr__(self):
         if len(self.clauses) is 0:
             return ""
         return "( " + " & ".join([str(clause) for clause in self.clauses]) + " )"
@@ -120,7 +120,7 @@ class AND:
     # Calls into the unit_prop library code
     def unit_propagate(self):
         string = self.cnf_string()
-        (clauses, true_exps) = unit_propagation_library(string)
+        (clauses, true_exps) = unit_propagation(string)
         unique_literals = self.literals_by_name
         true_var_names = [str(exp) for exp in true_exps]
         for var_name in true_var_names:

@@ -2,8 +2,7 @@ from utils import *
 from logic import *
 from copy import *
 
-
-def unit_propagation_library(s):
+def unit_propagation(s):
     # This implementation of unit propagation works but doesn't record support for each clause; will update
 
     clauses = check_input(s)
