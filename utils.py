@@ -218,7 +218,7 @@ def parse_input(a,s):
     to_change = []
     cmps = a.split(',')
     for c in cmps:
-        if c in s.components:
+        if (c in s.components) or (c in s.inputs):
             to_change.append(c)
     return to_change
     
