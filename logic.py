@@ -1,3 +1,7 @@
+# Expr class and to_cnf in particular are from
+# https://github.com/aimacode/aima-python/blob/master/utils.py
+# which are under the MIT License
+
 from __future__ import generators
 from utils import *
 import re
