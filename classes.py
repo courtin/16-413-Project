@@ -397,7 +397,7 @@ class Spaceship():
         self.change_input("V1",True)
         self.change_input("V2",True)
         
-    def make_sentance(self,structure):
+    def make_sentence(self,structure):
         #Make sentance specifically for dict data strucutres
         s = ""
         for e in structure:
@@ -476,7 +476,7 @@ class Spaceship():
     def check_conflicts(self,observations):
         #Check if the current state of the spaceship is in conflict
         #Returns true if a set of inputs, component assignments, and observations is a conflict for a given system
-        snt = make_sentance(self.system)+"&"+self.make_sentance(self.components)+"&"+self.make_sentance(self.inputs)
+        snt = make_sentence(self.system)+"&"+self.make_sentence(self.components)+"&"+self.make_sentence(self.inputs)
         clauses, true_statements = unit_propagation(snt)
         obs = conjuncts(to_cnf(observations))
         

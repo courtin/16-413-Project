@@ -216,7 +216,7 @@ def print_diag(diagnoses, preceeding = ""):
         
 def parse_input(a,s):
     to_change = []
-    cmps = a.split(',')
+    cmps = [i.strip() for i in a.split(',')]
     for c in cmps:
         if (c in s.components) or (c in s.inputs):
             to_change.append(c)
@@ -245,7 +245,7 @@ def trim_or(clauses):
 
     return clauses
 
-def make_sentance(clauses):
+def make_sentence(clauses):
         s = ""
         for c in clauses:
             if s == "":
