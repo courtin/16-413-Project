@@ -258,9 +258,9 @@ class Spaceship():
         system = []
         system.append("A1 ==> (X1 <=>(P1&V1))")
         system.append("A2 ==> (X2 <=>(P2&V2))")
-        system.append("A3 ==> (T1 <=>(X1&X2))")
-        system.append("A4 ==> (X3 <=>(V3&P1))")
-        system.append("A5 ==> (X4 <=>(V4&P2))")
+        system.append("A3 ==> (X3 <=>(V3&P1))")
+        system.append("A4 ==> (X4 <=>(V4&P2))")
+        system.append("A5 ==> (T1 <=>(X1&X2))")
         system.append("A6 ==> (T2 <=>(X3&X4))")
         system.append("A7 ==> (S1 <=>((T1&Y3)|(T2&Y3)))")
         system.append("R1 ==> (Y3 <=>((Y1|Y2)))")
@@ -307,11 +307,11 @@ class Spaceship():
                           "T2":L("T2",None),
                           "S1":L("S1",None)}
         
-        self.comp_dict = {"A4":(25,50,8,8,'k','c'),
+        self.comp_dict = {"A3":(25,50,8,8,'k','c'),
                  "A1":(5,65,8,8,'k','c'),
-                 "A3":(7.5,25,10,8,'k','c'),
+                 "A5":(7.5,25,10,8,'k','c'),
                  "A2":(10,55,8,8,'k','c'),
-                 "A5":(30,40,8,8,'k','c'),
+                 "A4":(30,40,8,8,'k','c'),
                  "A6":(27.5,25,10,8,'k','c'),
                  "A7":(17.5,10,15,8,'k','c'),
                  "C2":(65,65,8,8,'k','c'),
@@ -415,19 +415,20 @@ class Spaceship():
 
     def update_states(self, true_exp):
         #Update states for plotting
-        for e in true_exp:
-            if e.startswith("~"):
-                key = e[1:]
-                val = False
-            else:
-                key = e
-                val = True
-            if key in self.components:
-                self.change_component(key,val)
-            elif key in self.inputs:
-                self.change_input(key,val)
-            elif key in self.states:
-                self.change_state(key,val)
+        if len(true_exp) > 0:
+            for e in true_exp:
+                if e.startswith("~"):
+                    key = e[1:]
+                    val = False
+                else:
+                    key = e
+                    val = True
+                if key in self.components:
+                    self.change_component(key,val)
+                elif key in self.inputs:
+                    self.change_input(key,val)
+                elif key in self.states:
+                    self.change_state(key,val)
 
     def plot_spaceship(self):
         #Draw the current state of the spaceship
@@ -486,7 +487,6 @@ class Spaceship():
             not_obs = (to_cnf(~o))
             if not_obs in true_statements:
                 return True
-
         return False
 
 class AStarNode:
